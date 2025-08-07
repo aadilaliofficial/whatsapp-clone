@@ -5,13 +5,16 @@ const cors = require('cors');
 const messageRoutes = require('./routes/messageRoutes');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // ✅ IMPORTANT
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*', // Optional: use specific domain for security in production
+  methods: ['GET', 'POST']
+}));
 app.use(express.json());
 
-// Connect to MongoDB
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
