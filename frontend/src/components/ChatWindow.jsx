@@ -14,7 +14,7 @@ function ChatWindow({ chat, currentUser }) {
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/messages/${currentUser}/${chat.id}`);
+        const res = await fetch(`https://whatsapp-clone-vcn6.onrender.com/api/messages/...`);
         const data = await res.json();
         setMessages(data);
       } catch (err) {
@@ -73,3 +73,4 @@ function ChatWindow({ chat, currentUser }) {
 }
 
 export default ChatWindow;
+
