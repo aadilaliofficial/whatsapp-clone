@@ -2,30 +2,42 @@ import { useEffect, useState } from "react";
 import socket from "../socket";
 import MessageInput from "./MessageInput";
 
+// ✅ get API base URL from env
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 function ChatWindow({ chat, currentUser }) {
   const [messages, setMessages] = useState([]);
 
-  // Fetch chat messages when `chat` changes
+  // Fetch messages between selected users
   useEffect(() => {
     if (!chat || !currentUser) return;
 
-    fetch(`http://localhost:5000/api/messages/${currentUser}/${chat.id}`)
-      .then(res => res.json())
-      .then(data => setMessages(data));
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/messages/${currentUser}/${chat.id}`);
+        const data = await res.json();
+        setMessages(data);
+      } catch (err) {
+        console.error("Failed to fetch messages:", err);
+      }
+    };
+
+    fetchMessages();
   }, [chat, currentUser]);
 
-  // Receive new message in real-time
+  // Real-time incoming messages
   useEffect(() => {
-    socket.on("new_message", (message) => {
+    const handleNewMessage = (message) => {
       if (
         (message.from === currentUser && message.to === chat.id) ||
         (message.from === chat.id && message.to === currentUser)
       ) {
         setMessages((prev) => [...prev, message]);
       }
-    });
+    };
 
-    return () => socket.off("new_message");
+    socket.on("new_message", handleNewMessage);
+    return () => socket.off("new_message", handleNewMessage);
   }, [chat, currentUser]);
 
   if (!chat) {
@@ -38,7 +50,9 @@ function ChatWindow({ chat, currentUser }) {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="p-4 border-b border-gray-700 bg-gray-800 font-bold">{chat.name}</div>
+      <div className="p-4 border-b border-gray-700 bg-gray-800 font-bold">
+        {chat.name}
+      </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900 text-white">
         {messages.map((msg, i) => (
