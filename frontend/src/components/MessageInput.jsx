@@ -6,13 +6,17 @@ function MessageInput({ from, to }) {
   const sendMessage = async () => {
     if (!text.trim()) return;
 
-    await fetch("http://localhost:5000/api/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ from, to, content: text })
-    });
+    try {
+      await fetch(`https://whatsapp-clone-vcn6.onrender.com/api/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ from, to, content: text })
+      });
 
-    setText("");
+      setText("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
   return (
